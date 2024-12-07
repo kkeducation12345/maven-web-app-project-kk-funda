@@ -9,7 +9,7 @@
 </head>
 </head>
 <body>
-<h1 align="center">WELCOME TO KKFUNDA AWS SQL</h1>
+<h1 align="center">WELCOME TO KKDEVOPS AWS SQL</h1>
 <marquee><h1 align="center"> KK FUNDA YOUTUBE </h1></marquee>
 <hr>
 <br>
