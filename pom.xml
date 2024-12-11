@@ -98,13 +98,13 @@
 	    <repository>
 	      <id>nexus</id>
 	      <name>KK FUNDA Releases Nexus Repository</name>
-	      <url>http://13.201.126.94:8081/repository/airtel-relase/</url>
+	      <url>http://13.232.200.201:8081/repository/airtel-relase/</url>
 	    </repository>
 	    
 	    <snapshotRepository>
 	      <id>nexus</id>
 	      <name>KK FUNDA Snapshot Nexus Repository </name>
-	      <url>http://13.201.126.94:8081/repository/airtel-snapshot/</url>
+	      <url>http://13.232.200.201:8081/repository/airtel-snapshot/</url>
 	    </snapshotRepository>
 	    
 	</distributionManagement>
