@@ -19,12 +19,12 @@ tools
           }
           stage('SQREPORT'){
             steps{
-          sh "mvn sonar:sonar"
+          sh "mvn clean sonar:sonar"
           }
         }
          stage('DeployTONexus'){
            steps{
-          sh "mvn deploy"
+          sh "mvn clean deploy"
           }
         }
         stage('DeployAppToTomcat'){
