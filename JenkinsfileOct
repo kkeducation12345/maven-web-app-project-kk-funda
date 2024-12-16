@@ -1,44 +1,75 @@
-//This is scripted pipeline sample
-node
+pipeline {
+    agent any 
+tools
 {
-
-  properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '5', artifactNumToKeepStr: '5', daysToKeepStr: '5', numToKeepStr: '5')), pipelineTriggers([pollSCM('* * * * * ')])])
-  //   /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven-3.9.9/bin
-
-   def mavenHome=tool name:  "maven-3.9.9"
-  stage('git checkout')
-  {
-  git branch: 'development', credentialsId: 'd8f5bb40-ee7a-41f2-a72d-0fcc8eb6b07b', url: 'https://github.com/kkeducation12345/maven-web-app-project-kk-funda.git'
-  }
-  stage('Build')
-  {
-     sh "${mavenHome}/bin/mvn clean package"
-  }
-  stage('SQ Report')
-  {  
-     sh "${mavenHome}/bin/mvn clean sonar:sonar"   
-  }
-
-  stage('upload artifactt')
-  {
-    sh "${mavenHome}/bin/mvn clean deploy"
-  }
-
- /* stage('DeployIntoTomcat')
-  {
-   sshagent(['12448eed-30eb-4f85-836d-1aae3fa0bee2']) 
-   {
-
-    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.201.194.103:/opt/apache-tomcat-9.0.97/webapps/"
-    
-   }
-  } */
-
-stage("Tomcat Deployment")
-{
-    sshagent(['29ffdf5c-84b7-4a5a-aade-e5ca6dd35b6f']) {
-    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.201.194.103:/opt/apache-tomcat-9.0.97/webapps/"
+  maven "maven-3.9.9"
 }
+    stages {
+        stage('checkout stage') { 
+            steps {
+               git branch: 'development', credentialsId: 'd8f5bb40-ee7a-41f2-a72d-0fcc8eb6b07b', url: 'https://github.com/kkeducation12345/maven-web-app-project-kk-funda.git'
+                
+            }
+        }
+            stage('Build') { 
+            steps {
+         sh "mvn clean package"
+                
+            }
+          }
+          stage('SQREPORT'){
+            steps{
+          sh "mvn sonar:sonar"
+          }
+        }
+         stage('DeployTONexus'){
+           steps{
+          sh "mvn deploy"
+          }
+        }
+        stage('DeployAppToTomcat'){
+           steps{
+               sshagent(['29ffdf5c-84b7-4a5a-aade-e5ca6dd35b6f']) {
+                sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.201.194.103:/opt/apache-tomcat-9.0.97/webapps/"
+            }
+
+         
+          }
+        }
+    } //stages closing
+post {
+  success {
+    notifyBuild(currentBuild.result)
+  }
+  failure {
+notifyBuild(currentBuild.result)
+      }
 }
-	
+}//pipeline closing
+
+
+def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESS'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESS') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary, channel: '#airtel-dev')
 }
