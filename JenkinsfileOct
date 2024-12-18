@@ -83,7 +83,12 @@ pipeline
 	{
 		maven "maven-3.9.9"
 	}
-    stages 
+	options 
+	{
+        // This adds timestamp to the console output of each step
+        timestamps()
+    	}
+    	stages 
 	{
         stage('checkout stage') 
 		{ 
